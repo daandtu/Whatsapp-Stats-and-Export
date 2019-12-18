@@ -7,8 +7,10 @@ With the built-in export functionality you can only export the last 10,000 (with
 
 There may be other possibilities to get your message database like decrypting the sd-card backup, but they will not be discussed here.
 ### 2. Creating chat statistics
-Download or clone the script and run:
-> python whatsapp-stats.py "C:\PathToFile\msgstore.db"
+Download or clone the script and run
+```console
+foo@bar:~$ python whatsapp-stats.py "C:\PathToFile\msgstore.db"
+```
 
 ### License
 The script is licensed under the GPLv3: [http://www.gnu.org/licenses/gpl-3.0.html](http://www.gnu.org/licenses/gpl-3.0.html).
