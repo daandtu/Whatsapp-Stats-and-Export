@@ -1,5 +1,5 @@
 # Whatsapp chat statistics
-Little python script to analyze and export your Whatsapp chats from Whatsapps chat database. It creates some beautiful plots and an HTML version of the chat history.  
+Little python script to analyze and export your Whatsapp chats from the Whatsapps chat database. It creates some beautiful plots and an HTML version of the chat history.  
 With the built-in export functionality you can only export the last 10,000 (with images) or 40,000 (without images) messages. Using the database you can analyze your complete chat history.
 ### 1. Export of your message database:
 1. Option: Your phone is rooted. Just copy the file `msgstore.db` from the directory `/data/data/app/com.whatsapp/databases` to your computer.
@@ -9,7 +9,7 @@ There may be other possibilities to get your message database like decrypting th
 ### 2. Creating chat statistics
 Download or clone the script and run
 ```console
-foo@bar:~$ python whatsapp-stats.py "C:\PathToFile\msgstore.db"
+foo@bar:~$ python whatsapp-stats.py --phone_number '+49 170 00000000' 'C:\PathToFile\msgstore.db'
 ```
 
 ### License
