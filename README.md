@@ -3,7 +3,7 @@ Little python script to analyze and export your Whatsapp chats from the Whatsapp
 With the built-in export functionality you can only export the last 10,000 (with images) or 40,000 (without images) messages. Using the database you can analyze your complete chat history.
 ### 1. Export of your message database:
 1. Option: Your phone is rooted. Just copy the file `msgstore.db` from the directory `/data/data/app/com.whatsapp/databases` to your computer.
-2. Option: You have a Huawei Phone. In this case follow [this instructions](https://github.com/daandtu/whatsapp-chat-stats/blob/master/Huawei%20Export.md).
+2. Option: You have a Huawei Phone. In this case, follow [these instructions](https://github.com/daandtu/whatsapp-chat-stats/blob/master/Huawei%20Export.md).
 
 There may be other possibilities to get your message database like decrypting the sd-card backup, but they will not be discussed here.
 ### 2. Creating chat statistics
