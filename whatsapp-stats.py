@@ -59,12 +59,15 @@ class data:
 		self.c = create_matrix(3, size)
 		self.filter_size = 0
 		self.avg_chars = None
+		self.stats = None
 	def add(self, position, from_me, value):
 		self.m[2][position] += 1
 		self.m[from_me][position] += 1
 		self.c[2][position] += value
 		self.c[from_me][position] += value
 	def smooth(self, filter_size):
+		if self.avg_chars is None: self.__calc_avg()
+		self.stats = self.total_stats()
 		self.filter_size += filter_size - 1
 		self.__calc_avg()
 		for i in range(3):
@@ -110,6 +113,15 @@ class data:
 		for i in range(3):
 			for j in range(len(self.m[2])):
 				self.avg_chars[i][j] = self.c[i][j]/self.m[i][j] if self.m[i][j] != 0 else 0
+	def total_stats(self):
+		if self.stats is not None: return self.stats
+		if self.avg_chars is None: self.__calc_avg()
+		d = {}
+		d['total_messages'] = [sum(self.m[0]), sum(self.m[1]), sum(self.m[2])]
+		d['total_chars'] = [sum(self.c[0]), sum(self.c[1]), sum(self.c[2])]
+		d['avg_chars'] = [sum(self.avg_chars[0])/len(self.avg_chars[0]), sum(self.avg_chars[1])/len(self.avg_chars[1]), sum(self.avg_chars[2])/len(self.avg_chars[2])]
+		self.stats = d
+		return d
 		
 
 if __name__ == '__main__':
@@ -187,6 +199,7 @@ if __name__ == '__main__':
 	month.plot([1, 31], xlabel='Days per month')
 	total.smooth(70)
 	total.plot_dates(start, end, xrotation=45, linewidth=0.8)
+	print(total.total_stats())
 	
 # Exit
 	co.close()
