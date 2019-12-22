@@ -66,20 +66,28 @@ class data:
 		self.filter_size += filter_size - 1
 		for i in range(3):
 			self.m[i] = filter(self.m[i], filter_size)
-	def plot(self, x_axis, colors = 'r,g,b'):
-		colors = colors.split(',')
+	def plot(self, x_axis, xlabel='', ylabel='Messages', colors = 'r,g,b', save='', show=True, xrotation = 0, title = 'Whatsapp Chat Stats', linewidth = 1):
 		x = np.linspace(x_axis[0], x_axis[1], num = len(self.m[2]))
-		plt.plot(x, self.m[0], colors[0], x, self.m[1], colors[1], x, self.m[2], colors[2])
-		plt.show()
-	def plot_dates(self, startdate, enddate, colors = 'r,g,b', save=''):
-		colors = colors.split(',')
+		self.__plot(x, xlabel, ylabel, colors, save, show, xrotation, title, linewidth)
+	def plot_dates(self, startdate, enddate, xlabel='', ylabel='Messages', colors = 'r,g,b', save='', show=True, xrotation = 0, title = 'Whatsapp Chat Stats', linewidth = 1):
 		x = mdates.drange(startdate, enddate - timedelta(days=self.filter_size), timedelta(days=1))
 		plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-		plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=int(len(x)/10)))
-		plt.plot(x, self.m[0], colors[0], x, self.m[1], colors[1], x, self.m[2], colors[2])
+		plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=int(len(x)/11)))
+		self.__plot(x, xlabel, ylabel, colors, save, show, xrotation, title, linewidth)
+	def __plot(self, x, xlabel, ylabel, colors, save, show, xrotation, title, linewidth):
+		colors = colors.split(',')
+		plt.title(title)
+		plt.plot(x, self.m[0], colors[0], linewidth=linewidth, label='you')
+		plt.plot(x, self.m[1], colors[1], linewidth=linewidth, label='me')
+		plt.plot(x, self.m[2], colors[2], linewidth=linewidth, label='total')
+		plt.xlabel(xlabel)
+		plt.ylabel(ylabel)
+		plt.legend()
+		plt.xticks(rotation=xrotation)
+		plt.tight_layout()
 		if len(save) > 0:
-			plt.savefig(save)
-		else:
+			plt.savefig(save, dpi=300)
+		if show:
 			plt.show()
 		
 		
@@ -156,10 +164,10 @@ if __name__ == '__main__':
 
 # Plot data
 	day.smooth(4)
-	day.plot([0, 23])
-	month.plot([1, 31])
+	day.plot([0, 23], xlabel='Hours per day')
+	month.plot([1, 31], xlabel='Days per month')
 	total.smooth(70)
-	total.plot_dates(start, end, save='test.png')
+	total.plot_dates(start, end, save='test.png', xrotation=45, linewidth=0.8)
 	
 # Exit
 	co.close()
