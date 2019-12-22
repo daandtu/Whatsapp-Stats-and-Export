@@ -117,11 +117,32 @@ class data:
 		if self.stats is not None: return self.stats
 		if self.avg_chars is None: self.__calc_avg()
 		d = {}
-		d['total_messages'] = [sum(self.m[0]), sum(self.m[1]), sum(self.m[2])]
-		d['total_chars'] = [sum(self.c[0]), sum(self.c[1]), sum(self.c[2])]
-		d['avg_chars'] = [sum(self.avg_chars[0])/len(self.avg_chars[0]), sum(self.avg_chars[1])/len(self.avg_chars[1]), sum(self.avg_chars[2])/len(self.avg_chars[2])]
+		d['total_messages'] = [sum(self.m[i]) for i in range(3)]
+		d['total_chars'] = [sum(self.c[i]) for i in range(3)]
+		d['avg_chars'] = [sum(self.avg_chars[i])/len(self.avg_chars[i]) for i in range(3)]
 		self.stats = d
 		return d
+		
+class HTML:
+	def __init__(self, template = 'template.html'):
+		self.file = open('chat.html', 'w', encoding='utf-8')
+		with open(template, 'r') as t:
+			self.file.write(t.read())
+		self.date = time_to_datetime(0)
+	def add(self, dt, from_me, text):
+		if dt.date() > self.date.date():
+			self.date = dt
+			date = dt.strftime('%m/%d/%Y')
+			self.file.write('<div class="wrapper"><div class="date">{}</div></div>\n'.format(date))
+		time = dt.strftime('%H:%M')
+		if from_me:
+			self.file.write('<div class="message right"><div class="text">{}</div><div class="time">{}</div></div>\n'.format(text, time))
+		else:
+			self.file.write('<div class="message left"><div class="text">{}</div><div class="time">{}</div></div>\n'.format(text, time))
+	def close(self):
+		self.file.write('</body></html>')
+		self.file.close()
+		
 		
 
 if __name__ == '__main__':
@@ -170,6 +191,9 @@ if __name__ == '__main__':
 	total = data(day_diff)
 	words = {}
 	
+# Setup HTML creator
+	html = HTML()
+	
 # Process messages
 	p = progress(message_count)
 	for row in cu:
@@ -178,6 +202,7 @@ if __name__ == '__main__':
 		text = row[2]
 		if text is None: text = ""
 		p.new()
+		html.add(timestamp, from_me, text)
 		
 		day.add(timestamp.hour * 6 + int(timestamp.minute / 10), from_me, len(text))
 		month.add(timestamp.day - 1, from_me, len(text))
@@ -203,3 +228,4 @@ if __name__ == '__main__':
 	
 # Exit
 	co.close()
+	html.close()
