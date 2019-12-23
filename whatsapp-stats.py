@@ -131,6 +131,7 @@ class HTML:
 			self.file.write(t.read())
 		self.date = time_to_datetime(0)
 	def add(self, dt, from_me, text):
+		if len(text) == 0: return  # Ignore non-text images
 		if dt.date() > self.date.date():
 			self.date = dt
 			date = dt.strftime('%m/%d/%Y')
@@ -185,13 +186,14 @@ if __name__ == '__main__':
 	end = time_to_datetime(cu.fetchone()[0])
 	day_diff = (end-start).days + 1
 	# Get messages
-	cu.execute('SELECT timestamp, key_from_me, data FROM messages{}'.format(phone_query))
+	cu.execute('SELECT timestamp, key_from_me, data, media_mime_type, latitude FROM messages{}'.format(phone_query))
 	
 # Setup counting vars
 	day =  data(24 * 6)
 	month = data(31)
 	total = data(day_diff)
 	words = {}
+	media = {'messages_without_text':0}
 	
 # Setup HTML creator
 	html = HTML()
@@ -201,8 +203,9 @@ if __name__ == '__main__':
 	for row in cu:
 		timestamp = time_to_datetime(row[0])
 		from_me = int(row[1])
-		text = row[2]
-		if text is None: text = ""
+		text = row[2] if row[2] is not None else ""
+		media_type = row[3]
+		location = float(row[4]) > 0
 		
 		p.new()
 		html.add(timestamp, from_me, text)
@@ -217,6 +220,14 @@ if __name__ == '__main__':
 					words[w] += 1
 				else:
 					words[w] = 1
+		if len(text) == 0:
+			media['messages_without_text'] += 1
+		if media_type is not None:
+			key = media_type.split('/')[0]
+			if key == 'application' and media_type.split('/')[1] == 'pdf': key = 'pdf'
+			media[key] = media.get(key, 0) + 1
+		if location:
+			media['location'] = media.get('location', 0) + 1
 			
 	p.exit()
 	popular_words = get_popular_words(words, 100)
@@ -228,6 +239,7 @@ if __name__ == '__main__':
 	total.smooth(70)
 	total.plot_dates(start, end, xrotation=45, linewidth=0.8)
 	print(total.total_stats())
+	print(media)
 	
 # Exit
 	co.close()
