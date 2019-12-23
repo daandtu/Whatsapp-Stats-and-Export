@@ -138,7 +138,7 @@ class HTML:
 			self.file.write('<div class="w"><div class="d">{}</div></div>\n'.format(date))
 		time = dt.strftime('%H:%M')
 		text = text.replace('\n', '<br>')
-		if from_me:
+		if not from_me:
 			self.file.write('<div class="m r"><div class="t">{}</div><div class="ti">{}</div></div>\n'.format(text, time))
 		else:
 			self.file.write('<div class="m l"><div class="t">{}</div><div class="ti">{}</div></div>\n'.format(text, time))
