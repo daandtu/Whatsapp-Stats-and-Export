@@ -205,7 +205,8 @@ if __name__ == '__main__':
 	# In old messages emojis are stored as special caracters which are not displayed correctly
 	# There may be an better approach to replace them
 	rep = {'':'🎉','':'👍','':'😃','':'😁','':'😔','':'😭','':'😖','':'😊',
-			'':'⬆','':'☝','':'😉','':'😄','':'😜','':'😡','':'😂'}
+			'':'⬆','':'☝','':'😉','':'😄','':'😜','':'😡','':'😂','':'😂','':'🚗',
+			'':'😌','':'💪','':'😣','':'😒','':'😝'}
 	rep = dict((re.escape(k), v) for k, v in rep.items()) 
 	pattern = re.compile("|".join(rep.keys()))
 	
