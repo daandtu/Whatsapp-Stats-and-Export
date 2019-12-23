@@ -99,6 +99,7 @@ class data:
 		plt.plot(x, y[2], colors[2], linewidth=linewidth, label='total')
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
+		plt.rcParams["figure.figsize"] = (5.90551, 3.93701)  # 15cm:10cm
 		plt.legend()
 		plt.xticks(rotation=xrotation)
 		plt.tight_layout()
@@ -126,7 +127,7 @@ class data:
 class HTML:
 	def __init__(self, template = 'template.html'):
 		self.file = open('chat.html', 'w', encoding='utf-8')
-		with open(template, 'r') as t:
+		with open(template, 'r', encoding='utf-8') as t:
 			self.file.write(t.read())
 		self.date = time_to_datetime(0)
 	def add(self, dt, from_me, text):
@@ -135,6 +136,7 @@ class HTML:
 			date = dt.strftime('%m/%d/%Y')
 			self.file.write('<div class="wrapper"><div class="date">{}</div></div>\n'.format(date))
 		time = dt.strftime('%H:%M')
+		text = text.replace('\n', '<br>')
 		if from_me:
 			self.file.write('<div class="message right"><div class="text">{}</div><div class="time">{}</div></div>\n'.format(text, time))
 		else:
@@ -201,6 +203,7 @@ if __name__ == '__main__':
 		from_me = int(row[1])
 		text = row[2]
 		if text is None: text = ""
+		
 		p.new()
 		html.add(timestamp, from_me, text)
 		
