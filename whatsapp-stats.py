@@ -50,6 +50,8 @@ def get_popular_words(dic, count):
 			del result[min(result.keys())]
 			result[v] = k
 	return sorted(result.items())
+def fix_emojis(text, rep, pattern):
+	return pattern.sub(lambda m: rep[re.escape(m.group(0))], text)
 		
 
 class data:
@@ -165,6 +167,7 @@ if __name__ == '__main__':
 # Connect to database
 	if not isfile(msg_db_path): print('File not found'); exit()
 	co = sqlite3.connect(msg_db_path)
+	co.text_factory = lambda x: str(x, 'utf-8')
 	cu = co.cursor()
 
 # Get messages from database
@@ -198,12 +201,20 @@ if __name__ == '__main__':
 # Setup HTML creator
 	html = HTML()
 	
+# Setup Emoji Fix
+	# In old messages emojis are stored as special caracters which are not displayed correctly
+	# There may be an better approach to replace them
+	rep = {'':'🎉','':'👍','':'😃','':'😁','':'😔','':'😭','':'😖','':'😊',
+			'':'⬆','':'☝','':'😉','':'😄','':'😜','':'😡','':'😂'}
+	rep = dict((re.escape(k), v) for k, v in rep.items()) 
+	pattern = re.compile("|".join(rep.keys()))
+	
 # Process messages
 	p = progress(message_count)
 	for row in cu:
 		timestamp = time_to_datetime(row[0])
 		from_me = int(row[1])
-		text = row[2] if row[2] is not None else ""
+		text = fix_emojis(row[2], rep, pattern) if row[2] is not None else ""
 		media_type = row[3]
 		location = float(row[4]) > 0
 		
