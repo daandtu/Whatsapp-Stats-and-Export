@@ -135,13 +135,13 @@ class HTML:
 		if dt.date() > self.date.date():
 			self.date = dt
 			date = dt.strftime('%m/%d/%Y')
-			self.file.write('<div class="wrapper"><div class="date">{}</div></div>\n'.format(date))
+			self.file.write('<div class="w"><div class="d">{}</div></div>\n'.format(date))
 		time = dt.strftime('%H:%M')
 		text = text.replace('\n', '<br>')
 		if from_me:
-			self.file.write('<div class="message right"><div class="text">{}</div><div class="time">{}</div></div>\n'.format(text, time))
+			self.file.write('<div class="m r"><div class="t">{}</div><div class="ti">{}</div></div>\n'.format(text, time))
 		else:
-			self.file.write('<div class="message left"><div class="text">{}</div><div class="time">{}</div></div>\n'.format(text, time))
+			self.file.write('<div class="m l"><div class="t">{}</div><div class="ti">{}</div></div>\n'.format(text, time))
 	def close(self):
 		self.file.write('</body></html>')
 		self.file.close()
