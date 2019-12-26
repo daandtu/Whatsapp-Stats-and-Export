@@ -1,0 +1,47 @@
+\documentclass[a5paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{pagecolor}
+\usepackage[gen]{eurosym}
+\usepackage{varwidth}
+%\usepackage{fontspec}
+
+\pagestyle{empty}
+\geometry{a5paper,left=8mm,right=8mm, top=8mm, bottom=8mm}
+\setlength{\parindent}{0em}
+
+\definecolor{background}{HTML}{e5ddd5}
+\definecolor{own-messages}{HTML}{dcf8c6}
+\definecolor{other-messages}{rgb}{255,255,255}
+\definecolor{gray}{HTML}{7f8c8d}
+\definecolor{blue}{HTML}{e3f6fe}
+
+\input{coloremoji.tex}
+
+%\setmainfont[Path=arial/,
+%	BoldItalicFont=arialbi.ttf,
+%	BoldFont      =arialbd.ttf,
+%	ItalicFont    =ariali.ttf]{arial.ttf}
+
+\hbadness=10000
+\pagecolor{background}
+
+\newtcbox{\rb}{colback=own-messages,colframe=own-messages,arc=4pt,
+left=2pt,right=2pt,top=2pt,bottom=2pt,enlarge bottom by=0.03cm,nobeforeafter}
+\newtcbox{\lb}{colback=other-messages,colframe=other-messages,arc=4pt,
+left=2pt,right=2pt,top=2pt,bottom=2pt,enlarge bottom by=0.03cm,nobeforeafter}
+\newtcbox{\db}{colback=blue,colframe=blue,arc=4pt,
+left=1pt,right=1pt,top=1pt,bottom=1pt,enlarge bottom by=0.1cm,enlarge top by=0.1cm,nobeforeafter}
+
+\renewcommand{\r}[2]{\hspace*{\fill}\rb{\begin{varwidth}{0.6\textwidth}#1 {\color{gray}\tiny\ \hspace*{\fill}#2}\end{varwidth}}\\}
+\renewcommand{\l}[2]{\lb{\begin{varwidth}{0.6\textwidth}#1 {\color{gray}\tiny\ \hspace*{\fill}#2}\end{varwidth}}\\}
+\renewcommand{\d}[1]{\hspace*{\fill}\db{#1}\hspace*{\fill}\\}
+
+\begin{document}
+%\r{Hello, this is a long text with a linebreak.}{12:45}
+%\d{17.12.2019}
+%\l{Hello}{12:34}
+%\end{document}

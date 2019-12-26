@@ -7,6 +7,7 @@ from os.path import isfile
 from time import time
 from datetime import datetime, timedelta
 import re
+import os
 import numpy as np
 
 class progress:
@@ -75,25 +76,25 @@ class data:
 		for i in range(3):
 			self.m[i] = filter(self.m[i], filter_size)
 			self.avg_chars[i] = filter(self.avg_chars[i], filter_size)
-	def plot(self, x_axis, xlabel='', ylabelm='Messages', ylabelc='Average message length', colors = 'r,g,b', save='', show=False, xrotation = 0, title = 'Whatsapp Chat Stats', linewidth = 1):
+	def plot(self, x_axis, xlabel='', ylabelm='Messages', ylabelc='Average message length', colors = 'r,g,b', show=False, xrotation = 0, title = 'Whatsapp Chat Stats', linewidth = 1, output='output'):
 		plt.clf()
 		x = np.linspace(x_axis[0], x_axis[1], num = len(self.m[2]))
-		self.__plot(x, self.m, xlabel, ylabelm, colors, save, show, xrotation, title, linewidth)
+		self.__plot(x, self.m, xlabel, ylabelm, colors, show, xrotation, title, linewidth, output)
 		plt.clf()
 		if self.avg_chars is None: self.__calc_avg()
-		self.__plot(x, self.avg_chars, xlabel, ylabelc, colors, save, show, xrotation, title, linewidth)
-	def plot_dates(self, startdate, enddate, xlabel='', ylabelm='Messages', ylabelc='Average message length', colors = 'r,g,b', save='', show=False, xrotation = 0, title = 'Whatsapp Chat Stats', linewidth = 1):
+		self.__plot(x, self.avg_chars, xlabel, ylabelc, colors, show, xrotation, title, linewidth, output)
+	def plot_dates(self, startdate, enddate, xlabel='', ylabelm='Messages', ylabelc='Average message length', colors = 'r,g,b', show=False, xrotation = 0, title = 'Whatsapp Chat Stats', linewidth = 1, output='output'):
 		plt.clf()
 		x = mdates.drange(startdate, enddate - timedelta(days=self.filter_size), timedelta(days=1))
 		plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
 		plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=int(len(x)/11)))
-		self.__plot(x, self.m, xlabel, ylabelm, colors, save, show, xrotation, title, linewidth)
+		self.__plot(x, self.m, xlabel, ylabelm, colors, show, xrotation, title, linewidth, output)
 		plt.clf()
 		if self.avg_chars is None: self.__calc_avg()
 		plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
 		plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=int(len(x)/11)))
-		self.__plot(x, self.avg_chars, xlabel, ylabelc, colors, save, show, xrotation, title, linewidth)
-	def __plot(self, x, y, xlabel, ylabel, colors, save, show, xrotation, title, linewidth):
+		self.__plot(x, self.avg_chars, xlabel, ylabelc, colors, show, xrotation, title, linewidth, output)
+	def __plot(self, x, y, xlabel, ylabel, colors, show, xrotation, title, linewidth, output):
 		colors = colors.split(',')
 		plt.title(title)
 		plt.plot(x, y[0], colors[0], linewidth=linewidth, label='you')
@@ -105,9 +106,9 @@ class data:
 		plt.legend()
 		plt.xticks(rotation=xrotation)
 		plt.tight_layout()
-		if len(save) == 0:
-			save = 'whatsapp_stats{}.png'.format(data.counter)
-			data.counter += 1
+
+		save = os.path.join(output,'whatsapp_stats{}.png'.format(data.counter))
+		data.counter += 1
 		plt.savefig(save, dpi=300)
 		if show:
 			plt.show()
@@ -127,8 +128,8 @@ class data:
 		return d
 		
 class HTML:
-	def __init__(self, template = 'template.html'):
-		self.file = open('chat.html', 'w', encoding='utf-8')
+	def __init__(self, template = 'template.html', output = 'output'):
+		self.file = open(os.path.join(output, 'chat.html'), 'w', encoding='utf-8')
 		with open(template, 'r', encoding='utf-8') as t:
 			self.file.write(t.read())
 		self.date = time_to_datetime(0)
@@ -148,6 +149,33 @@ class HTML:
 		self.file.write('</body></html>')
 		self.file.close()
 		
+class TEX:
+	def __init__(self, template = 'template.tex', output = 'output'):
+		if not os.path.exists(os.path.join(output, 'tex')):
+			os.makedirs(os.path.join(output, 'tex'))
+		self.file = open(os.path.join(output, 'tex', 'chat.tex'), 'w', encoding='utf-8')
+		with open(template, 'r', encoding='utf-8') as t:
+			self.file.write(t.read())
+		self.date = time_to_datetime(0)
+		self.rep = {'_':'\\_', '$':'\\$', '{':'\\{', '}':'\\}', '%':'\\%', '"':"''", '&':'\\&', '^':'\\^','#':'\\#','[':'\\[',']':'\\]', '\\':'\textbackslash ', '\n':'\\\\','€':'\\euro{}','=':'=\\allowbreak '}  # Replace special LaTeX characters and allow linebreaks after '='
+		self.rep = dict((re.escape(k), v) for k, v in self.rep.items()) 
+		self.pattern = re.compile("|".join(self.rep.keys()))
+	def add(self, dt, from_me, text):
+		if len(text) == 0: return  # Ignore non-text images
+		text = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))], text)
+		text = bytes(text, 'utf-8').decode('utf-8','ignore') 
+		if dt.date() > self.date.date():
+			self.date = dt
+			date = dt.strftime('%m/%d/%Y')
+			self.file.write('\\d{%s}\n' % (date))
+		time = dt.strftime('%H:%M')
+		if not from_me:
+			self.file.write('\\l{%s}{%s}\n' % (text, time))
+		else:
+			self.file.write('\\r{%s}{%s}\n' % (text, time))
+	def close(self):
+		self.file.write('\\end{document}')
+		self.file.close()
 		
 
 if __name__ == '__main__':
@@ -157,10 +185,16 @@ if __name__ == '__main__':
 	parser.add_argument('-pn', '--phone_numbers', metavar='phone_numbers', type=str, default="",
 						help='Enter the international phone numbers of all chats you want to include in your statistics (comma separated)')
 	parser.add_argument('filepath', help="Filepath to your 'msgstore.db'")
+	parser.add_argument('-o','--output', help='Directory path for generated files', default="output")
+	parser.add_argument('-m','--mode', help='Output mode: normal|html|tex (default: normal)', default="normal")
 	#parser.add_argument('-v', '--verbose', action='count', help='verbose level, -v to -vvv')
 	args = parser.parse_args()
 	msg_db_path = args.filepath
 	phone_numbers = []
+	output = args.output
+	mode = args.mode.split('|')
+	if not os.path.exists(output):
+		os.makedirs(output)
 	if len(args.phone_numbers) > 0:
 		phone_numbers = [(''.join(i for i in s if i.isdigit())+ '@s.whatsapp.net') for s in args.phone_numbers.split(',')]  # Format phone numbers for SQL query
 		
@@ -198,8 +232,11 @@ if __name__ == '__main__':
 	words = {}
 	media = {'messages_without_text':0}
 	
-# Setup HTML creator
-	html = HTML()
+# Setup HTML and TEX creator
+	if 'html' in mode:
+		html = HTML(output=output)
+	if 'tex' in mode:
+		tex = TEX(output=output)
 	
 # Setup Emoji Fix
 	# In old messages emojis are stored as special caracters which are not displayed correctly
@@ -209,6 +246,7 @@ if __name__ == '__main__':
 			'':'😌','':'💪','':'😣','':'😒','':'😝'}
 	rep = dict((re.escape(k), v) for k, v in rep.items()) 
 	pattern = re.compile("|".join(rep.keys()))
+	
 	
 # Process messages
 	p = progress(message_count)
@@ -220,7 +258,10 @@ if __name__ == '__main__':
 		location = float(row[4]) > 0
 		
 		p.new()
-		html.add(timestamp, from_me, text)
+		if 'html' in mode:
+			html.add(timestamp, from_me, text)
+		if 'tex' in mode:
+			tex.add(timestamp, from_me, text)
 		
 		day.add(timestamp.hour * 6 + int(timestamp.minute / 10), from_me, len(text))
 		month.add(timestamp.day - 1, from_me, len(text))
@@ -246,13 +287,16 @@ if __name__ == '__main__':
 
 # Plot data
 	day.smooth(4)
-	day.plot([0, 23], xlabel='Hours per day')
-	month.plot([1, 31], xlabel='Days per month')
+	day.plot([0, 23], xlabel='Hours per day', output=output)
+	month.plot([1, 31], xlabel='Days per month', output=output)
 	total.smooth(70)
-	total.plot_dates(start, end, xrotation=45, linewidth=0.8)
+	total.plot_dates(start, end, xrotation=45, linewidth=0.8, output=output)
 	print(total.total_stats())
 	print(media)
 	
 # Exit
 	co.close()
-	html.close()
+	if 'html' in mode:
+		html.close()
+	if 'tex' in mode:
+		tex.close()
