@@ -22,7 +22,7 @@ foo@bar:~$ python whatsapp-stats.py --help
 ### <a name="latex"></a>LaTeX version to PDF
 With the generated `.tex` file you can create a beautiful PDF version of your chat history which includes all emojis. Printing HTML files to a PDF with a normal computer is only possible for a small number of pages. PDF generation by LaTeX is much more efficient. Follow these steps to create your PDF file:
   1. If not already done: [Download](https://www.latex-project.org/get/) and install a LaTeX distribution (which comes with the `lualatex` package, probably all common distributions do that)
-  2. If you want to display your emojis correctly, copy the contents of my coloremoji repository to your tex-output folder (probably `output/tex`).  
+  2. If you want to display your emojis correctly, copy the contents of [this coloremoji repository](https://github.com/daandtu/coloremoji-latex) to your tex-output folder (probably `output/tex`).  
   Pay attention, that the directory `coloremoji` and the file `coloremoji.tex` are in the same directory as your `chat.tex`.
   3. Outcomment `\input{coloremoji.tex}` in line 22 of your `chat.tex`.
   4. Navigate a terminal to the directory of your `chat.tex` and run
