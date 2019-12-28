@@ -135,6 +135,9 @@ class HTML:
 		self.date = time_to_datetime(0)
 	def add(self, dt, from_me, text):
 		if len(text) == 0: return  # Ignore non-text images
+		urls = re.findall(r'https?:\/\/[^\s,]*', text)
+		for url in urls:
+			text = text.replace(url, '<a href="{1}">{1}</a>'.format(url,url))
 		if dt.date() > self.date.date():
 			self.date = dt
 			date = dt.strftime('%m/%d/%Y')
@@ -157,13 +160,15 @@ class TEX:
 		with open(template, 'r', encoding='utf-8') as t:
 			self.file.write(t.read())
 		self.date = time_to_datetime(0)
-		self.rep = {'_':'\\_', '$':'\\$', '{':'\\{', '}':'\\}', '%':'\\%', '"':"''", '&':'\\&', '^':'\\^','#':'\\#','[':'\\[',']':'\\]', '\\':'\textbackslash ', '\n':'\\\\','€':'\\euro{}','=':'=\\allowbreak '}  # Replace special LaTeX characters and allow linebreaks after '='
+		self.rep = {'_':'\\_', '$':'\\$', '{':'\\{', '}':'\\}', '%':'\\%', '"':"''", '&':'\\&', '^':'\\^','#':'\\#','[':'\\[',']':'\\]', '\\':'\textbackslash ', '\n':'\\\\','€':'\\euro{}'}  # Replace special LaTeX characters
 		self.rep = dict((re.escape(k), v) for k, v in self.rep.items()) 
 		self.pattern = re.compile("|".join(self.rep.keys()))
 	def add(self, dt, from_me, text):
 		if len(text) == 0: return  # Ignore non-text images
 		text = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))], text)
-		text = bytes(text, 'utf-8').decode('utf-8','ignore') 
+		urls = re.findall(r'https?:\/\/[^\s,]*', text)
+		for url in urls:
+			text = text.replace(url, '\\url{%s}' % (url))
 		if dt.date() > self.date.date():
 			self.date = dt
 			date = dt.strftime('%m/%d/%Y')
