@@ -171,7 +171,7 @@ class TEX:
 			text = text.replace(url, '\\url{%s}' % (url))
 		if dt.date() > self.date.date():
 			self.date = dt
-			date = dt.strftime('%m/%d/%Y')
+			date = dt.strftime('%d/%m/%Y')
 			self.file.write('\\d{%s}\n' % (date))
 		time = dt.strftime('%H:%M')
 		if not from_me:
