@@ -160,7 +160,7 @@ class TEX:
 		with open(template, 'r', encoding='utf-8') as t:
 			self.file.write(t.read())
 		self.date = time_to_datetime(0)
-		self.rep = {'_':'\\_', '$':'\\$', '{':'\\{', '}':'\\}', '%':'\\%', '"':"''", '&':'\\&', '^':'\\^','#':'\\#','[':'\\[',']':'\\]', '\\':'\textbackslash ', '\n':'\\\\','€':'\\euro{}'}  # Replace special LaTeX characters
+		self.rep = {'_':'\\_', '$':'\\$', '{':'\\{', '}':'\\}', '%':'\\%', '"':"''", '&':'\\&', '^':'\\^','#':'\\#','[':'\\lbrack',']':'\\rbrack', '\\':'\textbackslash ', '\n':'\\\\','€':'\\euro{}'}  # Replace special LaTeX characters
 		self.rep = dict((re.escape(k), v) for k, v in self.rep.items()) 
 		self.pattern = re.compile("|".join(self.rep.keys()))
 	def add(self, dt, from_me, text):
@@ -260,7 +260,6 @@ if __name__ == '__main__':
 		from_me = int(row[1])
 		text = fix_emojis(row[2], rep, pattern) if row[2] is not None else ""
 		media_type = row[3]
-		location = float(row[4]) > 0
 		
 		p.new()
 		if 'html' in mode:
@@ -280,12 +279,14 @@ if __name__ == '__main__':
 					words[w] = 1
 		if len(text) == 0:
 			media['messages_without_text'] += 1
-		if media_type is not None:
-			key = media_type.split('/')[0]
-			if key == 'application' and media_type.split('/')[1] == 'pdf': key = 'pdf'
-			media[key] = media.get(key, 0) + 1
-		if location:
-			media['location'] = media.get('location', 0) + 1
+			if media_type is not None:
+				key = media_type.split('/')[0]
+				if key == 'application' and media_type.split('/')[1] == 'pdf': key = 'pdf'
+				media[key] = media.get(key, 0) + 1
+			elif float(row[4]) > 0:
+				media['location'] = media.get('location', 0) + 1
+			else:  # Deleted message
+				media['deleted'] = media.get('deleted', 0) + 1
 			
 	p.exit()
 	popular_words = get_popular_words(words, 100)
